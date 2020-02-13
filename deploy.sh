@@ -1,5 +1,6 @@
 # 1. Installation de VM dans VirtualBox
-# Vérifiez dans les préférences que le dossier par défaut de la machine est / sgoinfre / goinfre / Perso / epham / VM
+# Vérifiez dans les préférences que le dossier par défaut de la machine
+# est / sgoinfre / goinfre / Perso / epham / VM
 
 # Paramètres VM:
 
@@ -92,25 +93,30 @@ sudo fdisk -l
 
 
 # 2. Partie réseau et sécurité
-# Nous ne voulons pas que vous utilisiez le service DHCP de votre machine. Vous devez le configurer pour avoir une IP statique et un masque de réseau dans \ 30.
+# Nous ne voulons pas que vous utilisiez le service DHCP de votre machine.
+# Vous devez le configurer pour avoir une IP statique et un masque de réseau dans \ 30.
 # Obtenir l'adresse IP de la VM
 
 sudo ifconfig
-# Mon adresse IP: 10.13.0.175
+# Mon adresse IP: 10.12.1.106
 # Utilisez un service statique au lieu de DHCP
 
 sudo vim /etc/network/interfaces
 # remplacer dhcppar static
 # ajouter ces lignes:
 
-address 		10.12.1.119   	# IP address of VM
+address 		10.12.1.106   	# IP address of VM
 gateway 		10.12.254.254 	# Gateway address of VM
 broadcast 		10.12.255.255   # Broadcast address of VM
 netmask                 255.255.255.252 # Netmask /30
+11111111 11111111 11111111 11111100
 # ensuite
 
 sudo reboot
-# Vous devez changer le port par défaut du service SSH par celui de votre choix. L'accès SSH DOIT être fait avec des publickeys. L'accès root SSH NE DEVRAIT PAS être autorisé directement, mais avec un utilisateur qui peut être root.
+# Vous devez changer le port par défaut du service SSH par celui de votre choix.
+#L'accès SSH DOIT être fait avec des publickeys.
+#L'accès root SSH NE DEVRAIT PAS être autorisé directement,
+#mais avec un utilisateur qui peut être root.
 # Modifier le port SSH par défaut
 
 sudo vim /etc/ssh/sshd_config
@@ -119,18 +125,18 @@ sudo vim /etc/ssh/sshd_config
 
 sudo service sshd restart
 # Connectez-vous sur votre machine via SSH à la VM
-ssh emilie@10.13.0.175 -p 24
+ssh plaurent@10.12.1.106 -p 2670
 # Générer un publickey pour accéder à VM via SSH
 
 # Sur votre machine (pas la VM)
 
 ssh-keygen
-# fichier dans lequel enregistrer la clé /home/username/.ssh/id_rsa
+# fichier dans lequel enregistrer la clé /home/plaurent/.ssh/id_rsa
 
 # Copiez le publickey dans le fichier VM publickeys, puis à partir de la machine (pas VM)
 
 cd .ssh/
-ssh-copy-id -i id_rsa.pub emilie@10.13.0.175 -p 24
+ssh-copy-id -i id_rsa.pub plaurent@10.12.1.106 -p 2670
 # Vérifiez sur VM qu'un nouveau fichier authorized_keys a été créé dans le dossier .ssh /
 
 # Pour interdire à root de se connecter via SSH
@@ -149,13 +155,15 @@ sudo service sshd restart
 
 
 
-# Vous devez définir les règles de votre pare-feu sur votre serveur uniquement avec les services utilisés en dehors de la machine virtuelle.
+# Vous devez définir les règles de votre pare-feu sur votre serveur uniquement avec les services 
+#utilisés en dehors de la machine virtuelle.
 # Pour ce faire, nous utiliserons iptables.
 
 # Installer iptables-persistent pour rendre le changement de règle permanent
 
 sudo apt-get install iptables-persistent
-# Démarrez le service, il doit créer le dossier / etc / iptables / contenant les fichiers de règles (ipv4 et ipv6)
+# Démarrez le service, il doit créer le dossier / etc / iptables / 
+#contenant les fichiers de règles (ipv4 et ipv6)
 
 sudo service netfilter-persistent start
 # Ajout de règles au pare-feu
@@ -169,7 +177,9 @@ sudo iptables -A INPUT -p tcp -i enp0s3 --dport 24 -j ACCEPT
 # Ensuite, enregistrez-le en tant que changement permanent
 
 sudo service netfilter-persistent save
-# Nous pouvons également ajouter des règles directement en les éditant dans les fichiers /etc/iptables/rules.v4ou /etc/iptables/rules.v6. J'ai ajouté les règles suivantes
+# Nous pouvons également ajouter des règles directement en les éditant dans les
+#fichiers /etc/iptables/rules.v4ou /etc/iptables/rules.v6.
+#J'ai ajouté les règles suivantes
 
 # SSH CONNECTION
 -A INPUT -i enp0s3 -p tcp -m tcp --dport 24 -j ACCEPT
@@ -348,7 +358,8 @@ sudo apt install portsentry
 
 cd /etc/portsentry
 sudo vim portsentry.conf
-# Décommentez les premières lignes TCP et UDP (la protection la plus élevée) Commentez les secondes lignes TCP et UDP (protection moyenne)
+# Décommentez les premières lignes TCP et UDP (la protection la plus élevée) Commentez les secondes
+# lignes TCP et UDP (protection moyenne)
 
 # remplacer
 TCP_MODE="tcp"par TCP_MODE="atcp" UDP_MODE="udp"parUDP_MODE="audp"
@@ -432,7 +443,9 @@ apt-daily.timer              enabled
 sudo systemctl disable service_name
 
 
-# Créez un script qui met à jour toutes les sources de package, puis vos packages et qui enregistre le tout dans un fichier nommé /var/log/update_script.log. Créez une tâche planifiée pour ce script une fois par semaine à 4 heures du matin et à chaque redémarrage de la machine.
+# Créez un script qui met à jour toutes les sources de package, puis vos packages et qui
+#enregistre le tout dans un fichier nommé /var/log/update_script.log. Créez une tâche planifiée pour ce script
+#une fois par semaine à 4 heures du matin et à chaque redémarrage de la machine.
 # Puisque nous avons besoin que la tâche cron vienne de la racine, nous nous connecterons en tant qu'utilisateur root
 
 su

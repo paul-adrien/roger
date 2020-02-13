@@ -30,7 +30,7 @@ puis effectuer la commande ip a afin de lister les interfaces reseaux, noter le 
 
 auto [2e interface]
 iface [2e interface] inet dhcp
-la 2e interface sert a donner l'acces internet a la VM
+la 2e interface sert a donner lacces internet a la VM
 
 Puis redemarrer la VM
 
@@ -47,23 +47,25 @@ redemarrer le service ssh avec la commande suivante sudo /etc/init.d/ssh restart
 
 generer une publick keys depuis l'hote de la VM a l'aide de la commande ssh-keygen
 
-copier le contenu du fichier ~/.ssh/id_rsa.pub depuis la machine hote vers la VM dans le fichier ~/.ssh/authorized_keys depuis la session a laquelle on souhaite se connecter
+copier le contenu du fichier ~/.ssh/id_rsa.pub depuis la machine hote vers la VM
+dans le fichier ~/.ssh/authorized_keys depuis la session a laquelle on souhaite
+se connecter
 
 #5 Firewall
 Copier les commandes suivantes dans un fichier, executer ensuite le script cree en root
 
-#Nettoyage des règles existantes
-iptables -t filter -F
-iptables -t filter -X
+# #Nettoyage des règles existantes
+# iptables -t filter -F
+# iptables -t filter -X
 
-# Blocage total
-sudo iptables -t filter -P INPUT DROP
-sudo iptables -t filter -P FORWARD DROP
-sudo iptables -t filter -P OUTPUT DROP
+# # Blocage total
+# sudo iptables -t filter -P INPUT DROP
+# sudo iptables -t filter -P FORWARD DROP
+# sudo iptables -t filter -P OUTPUT DROP
 
 # Garder les connexions etablies
-sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
-sudo iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+# sudo iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+# sudo iptables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 
 # Autoriser loopback
 sudo iptables -t filter -A INPUT -i lo -j ACCEPT
@@ -74,23 +76,23 @@ sudo iptables -t filter -A INPUT -p icmp -j DROP
 sudo iptables -t filter -A OUTPUT -p icmp -j DROP
 
 # Autoriser SSH
-sudo iptables -t filter -A INPUT -p tcp --dport [port ssh] -j ACCEPT
-sudo iptables -t filter -A OUTPUT -p tcp --dport [port ssh] -j ACCEPT
+# sudo iptables -t filter -A INPUT -p tcp --dport [port ssh] -j ACCEPT
+# sudo iptables -t filter -A OUTPUT -p tcp --dport [port ssh] -j ACCEPT
 
-# Autoriser HTTP
-sudo iptables -t filter -A INPUT -p tcp --dport 80 -j ACCEPT
-sudo iptables -t filter -A OUTPUT -p tcp --dport 80 -j ACCEPT
+# # Autoriser HTTP
+# sudo iptables -t filter -A INPUT -p tcp --dport 80 -j ACCEPT
+# sudo iptables -t filter -A OUTPUT -p tcp --dport 80 -j ACCEPT
 
-# Autoriser HTTPS
-sudo iptables -t filter -A INPUT -p tcp --dport 443 -j ACCEPT
-sudo iptables -t filter -A INPUT -p tcp --dport 8443 -j ACCEPT
-sudo iptables -t filter -A OUTPUT -p tcp --dport 443 -j ACCEPT
+# # Autoriser HTTPS
+# sudo iptables -t filter -A INPUT -p tcp --dport 443 -j ACCEPT
+# sudo iptables -t filter -A INPUT -p tcp --dport 8443 -j ACCEPT
+# sudo iptables -t filter -A OUTPUT -p tcp --dport 443 -j ACCEPT
 
-# Autoriser DNS
-sudo iptables -t filter -A INPUT -p tcp --dport 53 -j ACCEPT
-sudo iptables -t filter -A INPUT -p udp --dport 53 -j ACCEPT
-sudo iptables -t filter -A OUTPUT -p tcp --dport 53 -j ACCEPT
-sudo iptables -t filter -A OUTPUT -p udp --dport 53 -j ACCEPT
+# # Autoriser DNS
+# sudo iptables -t filter -A INPUT -p tcp --dport 53 -j ACCEPT
+# sudo iptables -t filter -A INPUT -p udp --dport 53 -j ACCEPT
+# sudo iptables -t filter -A OUTPUT -p tcp --dport 53 -j ACCEPT
+# sudo iptables -t filter -A OUTPUT -p udp --dport 53 -j ACCEPT
 Les deux premieres lignes vont supprimer toutes les regles et tables deja existantes
 
 Le deuxieme point va bloquer par defaut toutes les connexions
@@ -105,7 +107,7 @@ Le sixieme point va autoriser la connexion SSH sur le port SSH definit dans un p
 
 Les septieme et huitieme points autorisent la connexion sur les ports HTTP (80) et HTTPS (443)
 
-Le dernier point va autoriser les connexions au DNS, aussi bien sur le protocole TCP qu'UDP
+# Le dernier point va autoriser les connexions au DNS, aussi bien sur le protocole TCP qu'UDP
 
 #6 Protection DOS
 Copier les commandes suivantes dans un fichier, executer ensuite le script cree en root
@@ -158,7 +160,7 @@ Ces deux lignes protegent le scan de ports
 
 Afin de sauvegarder toutes ces regles et de les executer au demarrage de la machine, on doitu tiliser un package externe.
 
-L'installer avec la commande sudo apt-get install iptables-persistent
+Linstaller avec la commande sudo apt-get install iptables-persistent
 
 Et cliquer sur Yes lorsque le packet demande d'enregistrer les regles dans l'iptable
 
@@ -175,15 +177,15 @@ Et y mettre les lignes suivantes :
 #!/bin/bash
 apt-get update >> /var/log/update_script.log
 apt-get upgrade >> /var/log/update_script.log
-Ne pas oublier de lui attribuer les droits d'execution :
+Ne pas oublier de lui attribuer les droits dexecution :
 
 sudo chmod 755 /root/scripts/script_log.sh
 
-Ainsi que de lui donner l'utilisateur root afin qu'il n'y ai pas besoin d'utiliser sudo :
+Ainsi que de lui donner lutilisateur root afin qu'il n'y ai pas besoin dutiliser sudo :
 
 sudo chown root /root/scripts/script_log.sh
 
-Afin d'automatiser son execution, on modifie le fichier crontab en root avec la commande crontab -e
+Afin dautomatiser son execution, on modifie le fichier crontab en root avec la commande crontab -e
 
 Pour y mettre les lignes suivantes :
 
